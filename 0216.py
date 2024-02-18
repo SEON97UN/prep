@@ -276,11 +276,41 @@ outliers_detector.predict(features)
 # IP별 트래픽의 합계
 # 방법 - 코테 -> numpy or pandas 사용 X 
 #      - 분석 -> numpy or pandas 사용
-data = pd.read_table('c:\\data_all/log.txt')
-# print(data)
+import pandas as pd
+import numpy as np
+data = pd.read_table('c:\\data_all/log.txt', header=None)
+# print(data.head()
 
+ips = []
+traffics = []
 
+for line in data[0]:
+    parts = line.split()
+    ips.append(parts[0])
+    traffics.append(parts[-1])
 
+df = pd.DataFrame({
+    'IP': ips,
+    'Traffic': traffics
+})
+
+# print(df.info())
+
+# (1)전체 트래픽의 합계 구하기
+df['Traffic'].replace('-', np.nan, inplace=True)
+df['Traffic'].replace('"-"', np.nan, inplace=True)
+df.dropna(subset=['Traffic'], axis=0, inplace=True)
+try:
+    df['Traffic'] = df['Traffic'].astype('int')
+except:
+    print('cannot convert')
+
+total_Traffic = df['Traffic'].sum()
+print('전체 트래픽의 합계:', total_Traffic)
+
+# (2) IP별 트래픽의 합계
+total_Traffic_by_IP = df.groupby('IP')['Traffic'].sum()
+print('IP별 트래픽의 합계:', total_Traffic_by_IP)
 
 
 # List Comprehension
